@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/LiveBootUtils/scripts/common.func
+. "$(dirname "$0")/.common.sh"
 set -e
 
 : ${dl_url:=https://www.cert.at/static/downloads/software/densityscout/densityscout_build_43_linux.zip}

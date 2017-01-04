@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/LiveBootUtils/scripts/common.func
+. "$(dirname "$0")/.common.sh"
 set -e
 
 : ${nsrl_ver:=1.2.3}

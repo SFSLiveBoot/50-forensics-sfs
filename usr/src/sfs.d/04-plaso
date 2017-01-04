@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/LiveBootUtils/scripts/common.func
+. "$(dirname "$0")/.common.sh"
 trap_fail
 
 as_root apt-get install python-dev
@@ -9,7 +9,7 @@ plaso_url="https://e366e647f8637dd31e0a13f75e5469341a9ab0ee.googledrive.com/host
 
 debs="python-protobuf python-yaml"
 
-/opt/LiveBootUtils/scripts/apt-sfs.sh "$DESTDIR" $debs
+"$lbu"/scripts/apt-sfs.sh "$DESTDIR" $debs
 
 for url in \
   https://pypi.python.org/packages/source/h/hachoir-core/hachoir-core-1.3.3.tar.gz \

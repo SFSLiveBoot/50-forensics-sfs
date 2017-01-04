@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/LiveBootUtils/scripts/common.func
+. "$(dirname "$0")/.common.sh"
 set -e
 
 apt-get -y install gcc g++ flex libewf-dev 

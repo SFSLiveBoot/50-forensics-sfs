@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/LiveBootUtils/scripts/common.func
+. "$(dirname "$0")/.common.sh"
 trap_fail
 
 : ${yal_inst=.*-(tools|python|dev)}
@@ -79,6 +79,6 @@ for lib in $libyal_libs;do
   test -z "$inst_new" || inst_deb="${inst_deb:+$inst_deb }$inst_new"
 done
 
-test -z "$inst_deb" || env dpkg_status="$saved_dpkg_status" /opt/LiveBootUtils/scripts/apt-sfs.sh "$DESTDIR" $inst_deb
+test -z "$inst_deb" || env dpkg_status="$saved_dpkg_status" "$lbu"/scripts/apt-sfs.sh "$DESTDIR" $inst_deb
 
 exit_succ

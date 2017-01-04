@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/LiveBootUtils/scripts/common.func
+. "$(dirname "$0")/.common.sh"
 set -e
 
 : ${dl_url:=https://raw.githubusercontent.com/mdegrazia/SQLite-Deleted-Records-Parser/master/sqlparse_v1.3.py}

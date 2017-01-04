@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /opt/LiveBootUtils/scripts/common.func
+. "$(dirname "$0")/.common.sh"
 set -e
 
 : ${tgz_url:=https://github.com/dutchcoders/forensics-sqlite/archive/master.tar.gz}
