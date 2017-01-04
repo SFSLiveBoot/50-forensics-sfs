@@ -10,11 +10,12 @@ as_root apt-get -y install python-dev libyaml-dev python-pip
 
 (
   cd "$plaso_src"
+  apt-get --allow-unauthenticated -y install $(awk '/^lib.*-python/{print $1}' requirements.txt)
   CPPFLAGS="-I/opt/include" LDFLAGS="-Wl,-rpath=/opt/lib -L/opt/lib" pip \
     install --download-cache "$dl_cache_dir/pip" -r requirements.txt \
     --install-option="--prefix=/opt" --root "$DESTDIR"
 )
 
-dl_compile_and_install "$src" /opt "$DESTDIR"
+dl_compile_and_install "$plaso_src" /opt "$DESTDIR"
 
 exit_succ

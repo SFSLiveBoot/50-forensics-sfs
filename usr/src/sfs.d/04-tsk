@@ -1,0 +1,36 @@
+#!/bin/sh
+
+. "$(dirname "$0")/.common.sh"
+
+trap_fail
+
+as_root apt-get install python-dev libfuse-dev uuid-dev libbz2-dev libewf-dev libtalloc-dev
+
+: ${ant_url:=http://ftp.kddilabs.jp/infosystems/apache//ant/binaries/apache-ant-1.9.4-bin.tar.bz2}
+: ${tsk_url:=https://github.com/sleuthkit/sleuthkit/releases/download/sleuthkit-4.3.0/sleuthkit-4.3.0.tar.gz}
+
+if which javac >/dev/null;then
+  which ant >/dev/null || {
+    test -d ant-bin/bin || {
+      mkdir -p ant-bin
+      curl "$ant_url" | tar xj -C ant-bin --strip-components=1
+    }
+    export PATH="$PATH:$PWD/ant-bin/bin"
+  }
+fi
+
+dl_compile_and_install --patch "$tsk_url" /opt "$DESTDIR" "" --with-afflib=/opt <<EOF
+--- a/tsk/img/ewf.c	2017-01-05 01:46:30.727299891 +0900
++++ b/tsk/img/ewf.c	2017-01-05 01:46:46.335651096 +0900
+@@ -64,7 +64,7 @@
+ 
+     tsk_take_lock(&(ewf_info->read_lock));
+ #if defined( HAVE_LIBEWF_V2_API )
+-    cnt = libewf_handle_read_random(ewf_info->handle,
++    cnt = libewf_handle_read_buffer_at_offset(ewf_info->handle,
+         buf, len, offset, &ewf_error);
+     if (cnt < 0) {
+         char *errmsg = NULL;
+EOF
+
+exit_succ
