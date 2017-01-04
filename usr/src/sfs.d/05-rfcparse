@@ -1,0 +1,7 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+mkdir -p "$DESTDIR/opt/bin"
+wget -O "$DESTDIR/opt/bin/rfcparse.py" https://raw.githubusercontent.com/sysforensics/RecentFileCacheParser/master/rfcparse.py

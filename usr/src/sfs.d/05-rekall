@@ -1,0 +1,21 @@
+#!/bin/sh
+
+: ${prefix:=/opt}
+
+mkdir -p "$HOME/.cache/pip"
+
+set -e -x
+
+apt-get -y install python-dev python-pip
+
+pip install ${pip_switches} --root "$DESTDIR" --install-option="--prefix=$prefix" --download-cache "$HOME/.cache/pip" rekall
+
+for pkg in rekall_gui/plugins/webconsole manuskript;do
+  lib_d="$DESTDIR$prefix/lib/python2.7/site-packages/$pkg"
+  inst_d="$DESTDIR$prefix/$pkg"
+  test -d "$lib_d" -a -d "$inst_d/static" || continue
+  test -L "$lib_d/static" -o -d "$lib_d/static" || {
+    mv "$inst_d/static" "$lib_d"
+    (rm_d="$inst_d"; while test -n "$rm_d" && rmdir "$rm_d"; do rm_d=${rm_d%/*};done)
+  }
+done

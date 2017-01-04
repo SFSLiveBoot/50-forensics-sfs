@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+: ${dl_url:=https://raw.githubusercontent.com/superponible/DFIR/master/parseusn.py}
+: ${fname:=${dl_url##*/}}
+
+mkdir -p "$DESTDIR/opt/bin"
+mv "$(dl_file "$dl_url")" "$DESTDIR/opt/bin/$fname"
+chmod +x "$DESTDIR/opt/bin/$fname"

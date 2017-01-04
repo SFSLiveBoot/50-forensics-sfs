@@ -1,0 +1,61 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+
+trap_fail
+
+as_root apt-get install python-dev libfuse-dev uuid-dev libbz2-dev libewf-dev libtalloc-dev
+
+ant_url="http://ftp.kddilabs.jp/infosystems/apache//ant/binaries/apache-ant-1.9.4-bin.tar.bz2"
+tsk_url="http://downloads.sourceforge.net/project/sleuthkit/sleuthkit/4.1.3/sleuthkit-4.1.3.tar.gz"
+pytsk_url="https://4a014e8976bcea5c2cd7bfa3cac120c3dd10a2f1.googledrive.com/host/0B3fBvzttpiiScUxsUm54cG02RDA/pytsk-20140506.tgz"
+
+if which javac >/dev/null;then
+  which ant >/dev/null || {
+    test -d ant-bin/bin || {
+      mkdir -p ant-bin
+      curl "$ant_url" | tar xj -C ant-bin --strip-components=1
+    }
+    export PATH="$PATH:$PWD/ant-bin/bin"
+  }
+fi
+
+dl_compile_and_install --patch "$tsk_url" /opt "$DESTDIR" "" --with-afflib=/opt <<EOF
+--- sleuthkit-4.1.3.orig/bindings/java/ivy.xml	2014-01-27 12:27:02.000000000 +0900
++++ sleuthkit-4.1.3-src/bindings/java/ivy.xml	2014-10-06 16:59:07.919335797 +0900
+@@ -3,7 +3,7 @@
+     <dependencies>
+ 		<dependency org="junit" name="junit" rev="4.8.2"/>
+ 		<dependency org="com.googlecode.java-diff-utils" name="diffutils" rev="1.2.1"/>
+-		<dependency org="org.xerial" name="sqlite-jdbc" rev="3.8.0-SNAPSHOT" >
++		<dependency org="org.xerial" name="sqlite-jdbc" rev="3.8.5-pre1" >
+ 			<artifact name="sqlite-jdbc" type="jar" />
+ 		</dependency>
+     </dependencies>
+--- sleuthkit-4.1.3.orig/tsk/img/tsk_img.h	2014-01-27 12:27:03.000000000 +0900
++++ sleuthkit-4.1.3-src/tsk/img/tsk_img.h	2014-10-06 16:59:07.919335797 +0900
+@@ -66,6 +66,8 @@
+ 
+         TSK_IMG_TYPE_EWF_EWF = 0x0040,  ///< EWF version
+ 
++        TSK_IMG_TYPE_EXTERNAL = 0x1000,   ///< external defined format which at least implements TSK_IMG_INFO, used by pytsk
++
+         TSK_IMG_TYPE_UNSUPP = 0xffff,   ///< Unsupported disk image type
+     } TSK_IMG_TYPE_ENUM;
+ 
+EOF
+dl_compile_and_install --patch "$pytsk_url" /opt "$DESTDIR" "" <<EOF
+--- pytsk.orig/setup.py	2014-05-04 01:23:07.000000000 +0900
++++ pytsk/setup.py	2014-09-25 18:31:42.542214396 +0900
+@@ -92,7 +92,7 @@
+ # Determine the location of the SleuthKit include header files.
+ TSK_HEADERS_PATH = None
+ 
+-results = glob.glob(os.path.join('/', 'usr', 'include', 'tsk*'))
++results = glob.glob(os.path.join('/', 'opt', 'include', 'tsk*'))
+ relative_path = False
+ 
+ if len(results) == 0:
+EOF
+
+exit_succ

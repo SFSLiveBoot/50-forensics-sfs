@@ -1,0 +1,15 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+: ${git_src:=https://github.com/witwall/undark.git}
+: ${src_dir:=$HOME/.cache/lbu-compile/undark_src}
+
+test -d "$src_dir" || git clone --depth=1 "$git_src" "$src_dir"
+( cd "$src_dir"; make )
+
+mkdir -p "$DESTDIR/opt/bin" "$DESTDIR/opt/share/man/man1"
+
+install -s "$src_dir/undark" "$DESTDIR/opt/bin"
+install "$src_dir/undark.1" "$DESTDIR/opt/share/man/man1"

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -xe
+mkdir -p "$DESTDIR/opt/bin"
+
+wget -O "$DESTDIR/opt/bin/ShimCacheParser.py" https://raw.githubusercontent.com/mandiant/ShimCacheParser/master/ShimCacheParser.py
+chmod +x "$DESTDIR/opt/bin/ShimCacheParser.py"

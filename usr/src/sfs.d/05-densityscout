@@ -1,0 +1,12 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+: ${dl_url:=https://www.cert.at/static/downloads/software/densityscout/densityscout_build_43_linux.zip}
+
+zip="$(dl_file "$dl_url")"
+mkdir -p "$DESTDIR/opt/bin"
+unzip -p "$zip" lin64/densityscout >"$DESTDIR/opt/bin/densityscout"
+chmod +x "$DESTDIR/opt/bin/densityscout"
+unzip -p "$zip" license.txt >"$DESTDIR/opt/bin/densityscout.license"

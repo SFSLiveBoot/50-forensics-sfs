@@ -1,0 +1,8 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+mkdir -p "$DESTDIR/opt/bin"
+wget -O "$DESTDIR/opt/bin/amcache.py" https://raw.githubusercontent.com/williballenthin/python-registry/master/samples/amcache.py
+chmod +x "$DESTDIR/opt/bin/amcache.py"

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+trap_fail
+
+: ${src_name=volatility}
+: ${ver:=2.4.1}
+: ${src:=https://github.com/volatilityfoundation/${src_name}.git}
+: ${src_dir:=$HOME/.cache/lbu-compile/$(echo -n "$src" | md5sum | cut -c1-8)-${src_name}-src}
+: ${pip_pkgs:=distorm3 yara ujson openpyxl}
+
+apt-get install -y python-dev python-pip
+
+pip install ${pip_switches} --root "$DESTDIR" --install-option="--prefix=$prefix" --download-cache "$HOME/.cache/pip" ${pip_pkgs}
+
+test -d "$src_dir" && (cd "$src_dir" ; git pull) || git clone -b $ver --depth=1 "$src" "$src_dir"
+
+dl_compile_and_install "$src_dir" /opt $DESTDIR
+
+exit_succ

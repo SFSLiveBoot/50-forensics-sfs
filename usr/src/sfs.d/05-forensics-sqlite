@@ -1,0 +1,16 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+: ${tgz_url:=https://github.com/dutchcoders/forensics-sqlite/archive/master.tar.gz}
+: ${py_ver:=$(python -V 2>&1 | tr -dc 0-9. | cut -f1,2 -d.)}
+: ${site_pkg_dir:=$DESTDIR/opt/lib/python2.7/site-packages}
+: ${tgz:=$(dl_file "$tgz_url")}
+
+mkdir -p "$site_pkg_dir" "$DESTDIR/opt/bin"
+
+tar xfz "$tgz" --strip-components=1 -C "$site_pkg_dir" --wildcards "*/forensics_sqlite/"
+tar xfz "$tgz" -O forensics-sqlite-master/test.py >"$DESTDIR/opt/bin/forensics-sqlite.py"
+
+test -L "$DESTDIR/opt/bin/forensics-sqlite" || ln -s _wrap-py "$DESTDIR/opt/bin/forensics-sqlite" 

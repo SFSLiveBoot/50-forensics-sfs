@@ -1,0 +1,84 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+trap_fail
+
+: ${yal_inst=.*-(tools|python|dev)}
+
+: ${name:=libyal}
+: ${src_url:=https://github.com/libyal/libyal.git}
+: ${src_dir:=$HOME/.cache/lbu-compile/$(echo -n "$src_url" | md5sum | cut -c1-8)-${name}-src}
+
+: ${libyal_libs:=libfwsi libhmac libexe libwrc libregf libsmraw libevt libevtx libsmdev libewf libscca libesedb liblnk libmsiecf libolecf libqcow libvhdi libvmdk libpff libagdb libmdmp libnk2 libnsfdb libwtcdb libmapidb libfsntfs libluksde libbde libfvde@relNONE libvshadow libodraw}
+
+latest_tarball_url() {
+  local prj="$1" release_id="$2" json_path res_url
+  res_url="https://api.github.com/repos/$prj/releases${release_id:+/$release_id}"
+  test -n "$release_id" || json_path="[0]"
+  json_path="$json_path['assets'][0]['browser_download_url']"
+  curl -s "$res_url" | python -c "import json,sys;print json.load(sys.stdin)$json_path"
+}
+
+build_tgzdeb_src() {
+  local src_dir="$1" src_url="$2" pkg_name
+  test -d "$src_dir/debian" || {
+    mkdir -p "$src_dir"
+    tar xfz $(dl_file "$src_url") -C "$src_dir" --strip-components=1
+    test -d "$src_dir/debian" || {
+      test -e "$src_dir/dpkg/changelog" -o ! -e "$src_dir/dpkg/changelog.in" || (
+        cd "$src_dir"
+        eval $(grep ^LOCAL_LIBS= synclibs.sh)
+        for lib in $LOCAL_LIBS; do
+          lib_git="$src_dir/../${lib}.git"
+          test -d "$lib_git" || git clone --depth=1 --bare https://github.com/libyal/${lib}.git "$lib_git"
+        done
+        sed -e "/^GIT_URL_PREFIX=/s@=.*@=$src_dir/..@" -i synclibs.sh
+        ./synclibs.sh
+        ./autogen.sh
+        ./configure
+      )
+      cp -rf "$src_dir/dpkg" "$src_dir/debian"
+    }
+  }
+  pkg_name=$(awk '/^Package: /{print $2}' "$src_dir/debian/control" | head -1)
+  test -n "$(find "$src_dir/.." -maxdepth 1 -name "${pkg_name}_*.deb")" || (
+    cd "$src_dir"
+    dpkg-buildpackage -jauto -us -uc -b
+  )
+}
+
+test -d "$src_dir" || mkdir -p "$src_dir"
+test -e "$src_dir/Packages" || touch "$src_dir/Packages"
+readlink -f "$src_dir" | grep -qwFr -f - /etc/apt ||
+  echo "deb file://$(readlink -f "$src_dir") ./" >/etc/apt/sources.list.d/build-libyal.list
+apt-get update -o acquire::languages=none
+
+apt_list_file="/var/lib/apt/lists/$(echo "$(readlink -f "$src_dir")/./Packages" | tr / _)"
+test -L "$apt_list_file" || {
+  test ! -e "$apt_list_file" || rm -vf $apt_list_file
+  ln -vs "$src_dir/Packages" "$apt_list_file"
+}
+
+saved_dpkg_status="$HOME/.cache/libyal-dpkg-status"
+test -e "$saved_dpkg_status" || cp /var/lib/dpkg/status "$saved_dpkg_status"
+
+apt-get -y install quilt byacc devscripts autopoint python-all-dev python3-all-dev libfuse-dev uuid-dev swig
+
+inst_deb=""
+for lib in $libyal_libs;do
+  release_id=""
+  case "$lib" in *@rel*) release_id="${lib##*@rel}"; lib="${lib%@rel*}";;esac
+  apt-cache show "$lib" >/dev/null || {
+    echo "Building and installing debian package for $lib"
+    tgz_url="$(latest_tarball_url "libyal/$lib" "$release_id")" || tgz_url="https://github.com/libyal/$lib/archive/master.tar.gz"
+    build_tgzdeb_src "$src_dir/$lib" "$tgz_url"
+    ( cd "$src_dir" ; dpkg-scanpackages . >Packages )
+  }
+  apt-cache show "$lib-dev" >/dev/null && apt-get -y --allow-unauthenticated install "$lib-dev" || true
+  inst_new="$(apt-cache show "$lib-python" "$lib-tools" | awk '/^Package: /{print $2}')"
+  test -z "$inst_new" || inst_deb="${inst_deb:+$inst_deb }$inst_new"
+done
+
+test -z "$inst_deb" || env dpkg_status="$saved_dpkg_status" /opt/LiveBootUtils/scripts/apt-sfs.sh "$DESTDIR" $inst_deb
+
+exit_succ

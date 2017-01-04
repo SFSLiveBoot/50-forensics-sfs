@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+
+trap_fail
+
+as_root apt-get -y install python-dev libfuse-dev
+
+dl_compile_and_install "git://github.com/simsong/AFFLIBv3" /opt "$DESTDIR" "afflib3" --enable-python=yes
+
+exit_succ

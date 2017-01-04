@@ -1,0 +1,8 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+: ${nsrl_ver:=1.2.3}
+
+dl_compile_and_install https://github.com/rjhansen/nsrllookup/archive/v${nsrl_ver}.tar.gz /opt "$DESTDIR"

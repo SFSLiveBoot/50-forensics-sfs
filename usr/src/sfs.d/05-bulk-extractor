@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+apt-get -y install gcc g++ flex libewf-dev 
+
+: ${be_ver:=1.5.5}
+: ${be_url:=http://digitalcorpora.org/downloads/bulk_extractor/bulk_extractor-${be_ver}.tar.gz}
+
+dl_compile_and_install ${be_url} /opt "$DESTDIR"

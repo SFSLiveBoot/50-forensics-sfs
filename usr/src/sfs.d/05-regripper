@@ -1,0 +1,14 @@
+#!/bin/sh
+
+. /opt/LiveBootUtils/scripts/common.func
+set -e
+
+: ${src_name=RegRipper2.8}
+: ${src_vendor=keydet89}
+
+: ${src:=https://github.com/${src_vendor}/${src_name}.git}
+: ${src_dir:=$HOME/.cache/lbu-compile/$(echo -n "$src" | md5sum | cut -c1-8)-${src_name}-src}
+
+test -d "$src_dir" && (cd "$src_dir" ; git pull) || git clone --depth=1 "$src" "$src_dir"
+
+(cd "$src_dir" ; git archive --format=tar --prefix=opt/RegRipper/ HEAD "*.pl" "*.txt" "*.pdf" "README*" plugins) | tar xv -C "$DESTDIR"
