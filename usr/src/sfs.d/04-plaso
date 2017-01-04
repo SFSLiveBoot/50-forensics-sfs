@@ -3,43 +3,18 @@
 . "$(dirname "$0")/.common.sh"
 trap_fail
 
-as_root apt-get install python-dev
+as_root apt-get -y install python-dev libyaml-dev python-pip
 
-plaso_url="https://e366e647f8637dd31e0a13f75e5469341a9ab0ee.googledrive.com/host/0B30H7z4S52FleW5vUHBnblJfcjg/1.1.0/release/plaso-1.1.0.tar.gz"
+: ${plaso_ver:=$(curl -s https://api.github.com/repos/log2timeline/plaso/releases | jq -r .[0].tag_name)}
+: ${plaso_src:=$(git_branch=$plaso_ver dl_file https://github.com/log2timeline/plaso.git)}
 
-debs="python-protobuf python-yaml"
+(
+  cd "$plaso_src"
+  CPPFLAGS="-I/opt/include" LDFLAGS="-Wl,-rpath=/opt/lib -L/opt/lib" pip \
+    install --download-cache "$dl_cache_dir/pip" -r requirements.txt \
+    --install-option="--prefix=/opt" --root "$DESTDIR"
+)
 
-"$lbu"/scripts/apt-sfs.sh "$DESTDIR" $debs
-
-for url in \
-  https://pypi.python.org/packages/source/h/hachoir-core/hachoir-core-1.3.3.tar.gz \
-  https://pypi.python.org/packages/source/h/hachoir-metadata/hachoir-metadata-1.3.3.tar.gz \
-  https://pypi.python.org/packages/source/h/hachoir-parser/hachoir-parser-1.3.4.tar.gz \
-  https://pypi.python.org/packages/source/b/bencode/bencode-1.0.tar.gz \
-  https://pypi.python.org/packages/source/b/binplist/binplist-0.1.4.tar.gz \
-  https://pypi.python.org/packages/source/p/psutil/psutil-1.2.1.tar.gz \
-  https://pypi.python.org/packages/source/p/pyparsing/pyparsing-2.0.2.tar.gz \
-  https://pypi.python.org/packages/source/p/python-dateutil/python-dateutil-2.2.tar.gz \
-  https://pypi.python.org/packages/source/p/pytz/pytz-2014.7.tar.bz2 \
-  https://pypi.python.org/packages/source/c/construct/construct-2.5.2.tar.gz \
-  https://dpkt.googlecode.com/files/dpkt-1.8.tar.gz \
-  https://8cc686ffe05394af72c9b3d507f0b2bcff74f031.googledrive.com/host/0B3fBvzttpiiSZTI3MWV6di1fRDg/dfvfs-20140824.tar.gz
-do
-  dl_compile_and_install "$url" /opt "$DESTDIR"
-done
-
-dl_compile_and_install --patch "$plaso_url" /opt "$DESTDIR" <<EOF
---- plaso-1.1.0-src.orig/utils/check_dependencies.py	2014-06-06 17:27:08.000000000 +0900
-+++ plaso-1.1.0-src/utils/check_dependencies.py	2014-09-25 22:44:01.601063147 +0900
-@@ -91,7 +91,7 @@
-     if module_loaded:
-       libyal_name = u'lib{}'.format(module_name[2:])
- 
--      installed_version = int(module_object.get_version())
-+      installed_version = int(module_object.get_version().strip("\0"))
-       try:
-         latest_version = GetLibyalGoogleDriveVersion(libyal_name)
-       except urllib2.URLError:
-EOF
+dl_compile_and_install "$src" /opt "$DESTDIR"
 
 exit_succ
