@@ -3,7 +3,7 @@
 . "$(dirname "$0")/.common.sh"
 set -e
 
-apt-get -y install gcc g++ flex libewf-dev 
+apt-get -y install gcc g++ flex libewf-dev
 
 : ${be_ver:=1.5.5}
 : ${be_url:=http://digitalcorpora.org/downloads/bulk_extractor/bulk_extractor-${be_ver}.tar.gz}

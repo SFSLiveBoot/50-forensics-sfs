@@ -8,7 +8,9 @@ set -e -x
 
 apt-get -y install python-dev python-pip
 
-pip install ${pip_switches} --root "$DESTDIR" --install-option="--prefix=$prefix" --download-cache "$HOME/.cache/pip" rekall
+pip install --upgrade --user pip
+pip install --upgrade --user setuptools
+CPPFLAGS="-I/opt/include" LDFLAGS="-Wl,-rpath=/opt/lib -L/opt/lib" $HOME/.local/bin/pip install ${pip_switches} --root "$DESTDIR" --install-option="--prefix=$prefix" rekall
 
 for pkg in rekall_gui/plugins/webconsole manuskript;do
   lib_d="$DESTDIR$prefix/lib/python2.7/site-packages/$pkg"

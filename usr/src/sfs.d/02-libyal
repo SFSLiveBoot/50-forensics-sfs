@@ -9,7 +9,7 @@ trap_fail
 : ${src_url:=https://github.com/libyal/libyal.git}
 : ${src_dir:=$HOME/.cache/lbu-compile/$(echo -n "$src_url" | md5sum | cut -c1-8)-${name}-src}
 
-: ${libyal_libs:=libfwsi libhmac libexe libwrc libregf libsmraw libevt libevtx libsmdev libewf libscca libesedb liblnk libmsiecf libolecf libqcow libvhdi libvmdk libpff libagdb libmdmp libnk2 libwtcdb libmapidb libfsntfs libluksde libbde@rel3043493 libfvde libvshadow libodraw libfwnt libsigscan libvslvm }
+: ${libyal_libs:=libfwsi libhmac libexe libwrc libregf libsmraw libevt libevtx libsmdev libscca libesedb liblnk libmsiecf libolecf libqcow libvhdi libvmdk libpff libagdb libmdmp libnk2 libwtcdb libmapidb libfsntfs libluksde libbde@rel3043493 libfvde libvshadow libodraw libfwnt libsigscan libvslvm }
 
 latest_tarball_url() {
   local prj="$1" release_id="$2" json_path res_url
