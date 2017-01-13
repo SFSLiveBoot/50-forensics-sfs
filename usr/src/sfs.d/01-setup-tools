@@ -1,0 +1,10 @@
+#!/bin/sh
+
+. "$(dirname "$0")/.common.sh"
+trap_fail
+
+apt-get -y install python-dev python-pip python-all-dev python3-all-dev libfuse-dev libbz2-dev jq
+pip install --upgrade --user pip
+pip install --upgrade --user setuptools
+
+exit_succ

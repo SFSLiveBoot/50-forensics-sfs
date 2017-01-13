@@ -9,13 +9,7 @@ trap_fail
 : ${src_dir:=$(git_branch=$ver dl_file $src)}
 : ${pip_pkgs:=distorm3 yara ujson openpyxl}
 
-apt-get install -y python-dev python-pip
-
-CPPFLAGS="-I/opt/include" LDFLAGS="-Wl,-rpath=/opt/lib -L/opt/lib" pip install \
-    --download-cache "$dl_cache_dir/pip/dl" --upgrade \
-    --install-option="--prefix=/opt" --root "$DESTDIR" \
-    ${pip_switches} ${pip_pkgs}
-
-dl_compile_and_install "$src_dir" /opt $DESTDIR
+pip_inst ${pip_pkgs}
+pip_inst "$src_dir"
 
 exit_succ

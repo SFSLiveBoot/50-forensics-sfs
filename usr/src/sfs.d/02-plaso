@@ -1,0 +1,17 @@
+#!/bin/sh
+
+. "$(dirname "$0")/.common.sh"
+trap_fail
+
+apt-get -y install libyaml-dev
+
+: ${plaso_ver:=$(curl -s https://api.github.com/repos/log2timeline/plaso/releases | jq -r .[0].tag_name)}
+: ${plaso_src:=$(git_branch=$plaso_ver dl_file https://github.com/log2timeline/plaso.git)}
+
+# later requirement for rekall
+grep "^psutil" "$plaso_src/requirements.txt" | grep -q '<' || sed -e '/^psutil/s/$/,<5.0/' -i "$plaso_src/requirements.txt"
+
+pip_inst -r "$plaso_src/requirements.txt"
+pip_inst "$plaso_src"
+
+exit_succ
